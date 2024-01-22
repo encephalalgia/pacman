@@ -1,0 +1,5 @@
+.idea
+cmake-build-debug
+cmake-build-release
+assets/roms/pacman.*
+assets/roms/82s12*
