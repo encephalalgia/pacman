@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.26)
-project(pacman)
+project(pacman
+        LANGUAGES CXX
+        VERSION 0.0.0
+        DESCRIPTION "A Pac-Man arcade emulator"
+        HOMEPAGE_URL "https://github.com/harrow22/pacman"
+)
 
 set(CMAKE_CXX_STANDARD 20)
 
