@@ -13,8 +13,9 @@
 class Pacman {
 public:
     using Z80 = z80<Pacman>;
-    using Tile = std::uint8_t[64];
     using Palette = std::uint32_t[4];
+    using Tile = std::uint8_t[64];
+    using Sprite = std::uint8_t[256];
 
     // Constructor (also sets the active boolean).
     explicit Pacman(std::uint8_t ds);
@@ -83,7 +84,7 @@ private:
     static constexpr std::uint8_t left {0b00000010U};
     static constexpr std::uint8_t right {0b00000100U};
     static constexpr std::uint8_t down {0b00001000U};
-    static constexpr std::uint8_t skip {0b00010000U};
+    static constexpr std::uint8_t rackAdvance {0b00010000U};
     static constexpr std::uint8_t test {0b00010000U};
     static constexpr std::uint8_t coin1 {0b00100000U};
     static constexpr std::uint8_t onePlayer {0b00100000U};
@@ -98,6 +99,28 @@ private:
     static constexpr int pitch {screenWidth * sizeof(std::uint32_t)};
 
     /**
+     * Draws a tile decoded from the tile rom.
+     * @param loc the byte that selects the tile from tile ram
+     * @param x the x coordinate [0,27] (tile's upper left corner)
+     * @param y the y coordinate [0,35] (tile's upper left corner)
+     */
+    void drawTile(int loc, int x, int y);
+
+    /**
+     * Draws a sprite decoded from the sprite rom.
+     * @param loc selects the sprite from sprite ram
+     * @param x the x coordinate [0,27] (sprite's upper left corner)
+     * @param y the y coordinate [0,35] (sprite's upper left corner)
+     */
+    void drawSprite(int loc, int x, int y);
+
+    /**
+     * Initializes SDL2 objects.
+     * @return true if SDL2 encountered no errors initializing each object; false otherwise
+     */
+    bool initVideo();
+
+    /**
      * For loading a binary ROM file.
      * @param array a pointer to where to dump the file's contents
      * @param path path to the file
@@ -108,24 +131,14 @@ private:
     static bool load(std::uint8_t* array, const std::string& path, int addr, int sz);
 
     /**
-     * Initializes SDL2 objects.
-     * @return true if SDL2 encountered no errors initializing each object; false otherwise
+     * Preloads the game's tiles, sprites, colors, and palettes from their respective ROMs into a convenient format.
+     * @param dir the rom file's parent directory
+     * @return true if preload encountered no errors preloading the images; false otherwise
      */
-    bool initVideo();
-
-    // Preloads the game's tiles, sprites, colors, and palettes from their respective ROMs into a convenient format.
-    void preload();
-
-    /**
-     *
-     * @param loc
-     * @param x
-     * @param y
-     */
-    void drawTile(int loc, int x, int y);
+    bool preload(const std::string& dir);
 
     const std::uint8_t dipswitch; // game settings
-    std::uint8_t input0 {}, input1 {0b10000000U}; // setting cabinet mode to upright
+    std::uint8_t input0 {0b10011111}, input1 {0b11111111U}; // default cabinet mode is upright and board test is off
     bool soundEnabled {false}, flipScreen {false};
 
     std::uint32_t rasterBuffer[screenHeight][screenWidth] {};
@@ -133,22 +146,20 @@ private:
     SDL_Renderer* renderer {nullptr};
     SDL_Texture* texture {nullptr};
 
-    std::uint8_t rom[0x4000] {};
     /**
-     * 0x4000 - 0x43FF: 1024 vram (tile information)
-     * 0x4400 - 0x47FF: 1024 vram (tile palettes)
-     * 0x4800 - 0x4FEF: 2032 ram
+     * 0x0000-0x4000: 16384 game rom
+     * 0x4000-0x43FF: 1024 video ram
+     * 0x4400-0x47FF: 1024 color ram
+     * 0x4800-0x4FEF: 2032 ram
+     * 0x4FF0-0x4FFF: 16 sprite ram
      */
+    std::uint8_t rom[0x4000] {};
     std::uint8_t ram[0x1000] {};
-    std::uint8_t spriteNum[0x10] {};
+    std::uint8_t spritePos[0x10] {};
 
-    std::uint8_t colorRom[0x20] {};
-    std::uint8_t paletteRom[0x100] {};
-    std::uint8_t tileRom[0x1000] {};
-    std::uint8_t spriteRom[0x1000] {};
-
-    std::array<Tile, 256> tiles {};
     std::array<Palette, 32> palettes {};
+    std::array<Tile, 256> tiles {};
+    std::array<Sprite, 64> sprites {};
 };
 
 

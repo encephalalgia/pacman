@@ -1,8 +1,6 @@
-#include <cmath>
 #include "SDL.h"
 #include "z80.h"
 #include "Pacman.h"
-#include <iostream>
 
 using Z80 = z80<Pacman>;
 
@@ -10,14 +8,13 @@ int main(int argc, char** argv)
 {
     // initialize SDL2
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cout << "L\n";
         SDL_Log("SDL_Init() failed. SDL_Error: %s\n", SDL_GetError());
         return 0;
     }
 
     static constexpr int clockSpeed {static_cast<int>(3.072e6)}; // 3.072 MHz
     static constexpr int cyclesPerFrame {clockSpeed / 60};
-    const int frameTime {static_cast<int>(std::ceil(1.0 / 60.0 * 1e3))};
+    const int frameTime {static_cast<int>(1.0 / 60.0 * 1e3)};
 
     // dipswitch command line parsing
     std::uint8_t dipswitch {0b11001001};
