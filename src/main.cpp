@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "z80.h"
 #include "Pacman.h"
+#include <iostream>
 
 using Z80 = z80<Pacman>;
 
@@ -9,12 +10,13 @@ int main(int argc, char** argv)
 {
     // initialize SDL2
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cout << "L\n";
         SDL_Log("SDL_Init() failed. SDL_Error: %s\n", SDL_GetError());
         return 0;
     }
 
     static constexpr int clockSpeed {static_cast<int>(3.072e6)}; // 3.072 MHz
-    static constexpr int cycles {clockSpeed / 60};
+    static constexpr int cyclesPerFrame {clockSpeed / 60};
     const int frameTime {static_cast<int>(std::ceil(1.0 / 60.0 * 1e3))};
 
     // dipswitch command line parsing
@@ -86,7 +88,8 @@ int main(int argc, char** argv)
     Z80 z {pacman};
 
     bool quit {!(pacman.active)};
-    int exceeded {0};
+    int cycles {cyclesPerFrame};
+
     while(!quit) {
         // process SDL events
         SDL_Event e;
@@ -101,10 +104,25 @@ int main(int argc, char** argv)
         }
 
         unsigned long long begin {SDL_GetTicks64()};
-        exceeded = z.run(cycles + exceeded);
+
+        /*
+        int executed {0};
+        z.requested = cycles - z.requested;
+        while(z.requested > 0) {
+            const int tmp {z.requested};
+            z.step();
+            executed += tmp - z.requested;
+            std::cout << z.toString(executed) << '\n';
+        }
+        */
+        cycles = cyclesPerFrame + z.run(cycles); // z.run -> a negative value representing the number of exceeded cycles
 
         // draw a frame
         pacman.draw();
+
+        // generate interrupt if enabled
+        if (pacman.interruptEnabled)
+            z.reqInt(pacman.interruptVector);
 
         // sleep until the next frame accounting for spent time
         SDL_Delay(std::max(0LL, frameTime - static_cast<long long>(SDL_GetTicks64() - begin)));
