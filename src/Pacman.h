@@ -35,7 +35,7 @@ public:
     void write8(std::uint16_t addr, std::uint8_t val);
 
     // Reads a word from the address given (uses read8).
-    [[nodiscard]] std::uint16_t read16(const std::uint16_t addr) { return read8(addr + 1) << 8 | read8(addr); }
+    [[nodiscard]] std::uint16_t read16(const std::uint16_t addr) const { return read8(addr + 1) << 8 | read8(addr); }
 
     // Writes a word to the address given (uses write8).
     void write16(const std::uint16_t addr, const std::uint16_t val) { write8(addr, val & 0xFF); write8(addr + 1, val >> 8); }
@@ -46,7 +46,7 @@ public:
      * @param port The port to read from
      * @return the byte read
      */
-    [[nodiscard]] std::uint8_t input(const Pacman::Z80 *cpu, const std::uint8_t port) const { return 0; }
+    [[nodiscard]] static std::uint8_t input(const Pacman::Z80 *cpu, const std::uint8_t port) { return 0; }
 
     /**
      * Output (port 0 sets interrupt vector).
@@ -93,6 +93,7 @@ private:
     static constexpr std::uint8_t credit {0b10000000U};
 
     // display constants
+    static constexpr std::uint32_t black {0xFF000000};
     static constexpr int screenWidth {224};
     static constexpr int screenHeight {288};
     static constexpr int scaleFactor {3};
@@ -119,16 +120,6 @@ private:
      * @return true if SDL2 encountered no errors initializing each object; false otherwise
      */
     bool initVideo();
-
-    /**
-     * For loading a binary ROM file.
-     * @param array a pointer to where to dump the file's contents
-     * @param path path to the file
-     * @param addr base address to start reading the file from
-     * @param sz size of the array
-     * @return true if there were no errors opening/reading the file; false otherwise
-     */
-    static bool load(std::uint8_t* array, const std::string& path, int addr, int sz);
 
     /**
      * Preloads the game's tiles, sprites, colors, and palettes from their respective ROMs into a convenient format.

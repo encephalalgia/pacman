@@ -23,9 +23,10 @@ int main(int argc, char** argv)
         bool hasNext {i + 1 != argc};
         if (!hasNext) break;
 
-        std::string setting {argv[++i]};
+        std::string setting {argv[i + 1]};
         if (argv[i] == "-coins_per_game"sv) {
             try {
+                dipswitch &= 0xFC;
                 switch (std::stoi(setting)) {
                     case 0: dipswitch |= 0b00; break; // free play
                     case 1: dipswitch |= 0b01; break; // 1 coin per game
@@ -38,6 +39,7 @@ int main(int argc, char** argv)
             }
         } else if (argv[i] == "-lives_per_game"sv) {
             try {
+                dipswitch &= 0xF3;
                 switch (std::stoi(setting)) {
                     case 1: dipswitch |= 0b0000; break; // 1 life
                     case 2: dipswitch |= 0b0100; break; // 2 lives
@@ -50,6 +52,7 @@ int main(int argc, char** argv)
             }
         } else if (argv[i] == "-extra_life_score"sv) {
             try {
+                dipswitch &= 0xCF;
                 switch (std::stoi(setting)) {
                     case 10000: dipswitch |= 0b000000; break; // 10000 points
                     case 15000: dipswitch |= 0b010000; break; // 15000 points
@@ -61,6 +64,7 @@ int main(int argc, char** argv)
                 dipswitch |= 0b000000;
             }
         } else if (argv[i] == "-difficulty"sv) {
+            dipswitch &= 0xBF;
             if (setting == "HARD") {
                 dipswitch |= 0b0000000;
             } else {
@@ -69,6 +73,7 @@ int main(int argc, char** argv)
                     SDL_Log("error: failed to read integer for '-difficulty' parameter, using default=normal.\n");
             }
         } else if (argv[i] == "-ghost_names"sv) {
+            dipswitch &= 0x7F;
             if (setting == "ALT") {
                 dipswitch |= 0b00000000;
             } else {
@@ -77,8 +82,9 @@ int main(int argc, char** argv)
                     SDL_Log("error: failed to read integer for '-ghost_names' parameter, using default=normal.\n");
             }
         } else {
-            SDL_Log("Unrecognized command line argument '%s'.\nAvailable parameters are:\n\t-coins_per_game <0,1,2,3>\n\t-lives_per_game <1,2,3,5>\n\t-extra_life_score <10000,15000,20000,0>\n\t-difficulty <HARD,NORMAL>\n\t-ghost_names <ALT,NORMAL>\n\n", argv[i]);
+            SDL_Log("Unrecognized command line argument '%s'.\nAvailable parameters are:\n\t-coins_per_game <0,1,2,3>\n\t-lives_per_game <1,2,3,5>\n\t-extra_life_score <10000,15000,20000,0>\n\t-difficulty <NORMAL,HARD>\n\t-ghost_names <NORMAL,ALT>\n\n", argv[i]);
         }
+        ++i;
     }
 
     Pacman pacman {dipswitch};
@@ -101,17 +107,6 @@ int main(int argc, char** argv)
         }
 
         unsigned long long begin {SDL_GetTicks64()};
-
-        /*
-        int executed {0};
-        z.requested = cycles - z.requested;
-        while(z.requested > 0) {
-            const int tmp {z.requested};
-            z.step();
-            executed += tmp - z.requested;
-            std::cout << z.toString(executed) << '\n';
-        }
-        */
         cycles = cyclesPerFrame + z.run(cycles); // z.run -> a negative value representing the number of exceeded cycles
 
         // draw a frame
