@@ -1,7 +1,7 @@
 # Pac-Man Emulator
-This is an emulator of the 1980 Pac-Man arcade machine by Midway. Mainly created because I wanted a quick project that utilized my [Z80 emulator](https://github.com/harrow22/z80). Sound has not (yet?) been implemented.
+This is an emulator of the 1980 Pac-Man arcade machine by Midway. Mainly created because I wanted a quick project that utilized my [Z80 emulator](https://github.com/encephalalgia/z80). Sound has not (yet?) been implemented.
 <p align="center">
-  <img alt="Pac-Man attract mode gif" src="https://raw.githubusercontent.com/harrow22/pacman/master/examples/demo.gif" height="400" />
+  <img alt="Pac-Man attract mode gif" src="https://raw.githubusercontent.com/encephalalgia/pacman/master/examples/demo.gif" height="400" />
 </p>
 
 # Controls
@@ -29,7 +29,7 @@ This is an emulator of the 1980 Pac-Man arcade machine by Midway. Mainly created
 
 ### Build & Run
 ```angular2html
-git clone https://github.com/harrow22/pacman.git
+git clone https://github.com/encephalalgia/pacman.git
 cd pacman
 cmake -S . -B build -G <generator> -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_PREFIX_PATH=<path/to/sdl>
 cmake --build build --config Release
